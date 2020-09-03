@@ -101,3 +101,16 @@ def GetFreq(ds,colList=None,cutoff=100):
     d['Prop'] = d['Freq']/ds.shape[0]
     
     return d
+
+
+def reorder_columns(df,first_cols=['']):
+    """
+    This function reorder columns in a dataset
+    param:
+        df:dataframe
+        first_cols: list of columns which should be at left
+    """
+
+    last_cols = [col for col in df.columns if col not in first_cols]
+    df = df[first_cols+last_cols]
+    return(df)
