@@ -114,3 +114,28 @@ def reorder_columns(df,first_cols=['']):
     last_cols = [col for col in df.columns if col not in first_cols]
     df = df[first_cols+last_cols]
     return(df)
+
+
+def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
+    """
+    This functions gives pair var list which are correlated based on the cutoff 
+    param:
+        ds : dataframe
+        cutoff : cutoff to choose correl level
+        is_cor_mat_return : True if correlation matrix to be return
+    """
+    cor_mat = ds.corr()
+    
+    var1 = []; var2 = []
+    for i in range(len(cor_mat.columns)):
+        for j in range(len(cor_mat.index)):
+            if (cor_mat.iloc[i,j] > cutoff) & (i>j):
+                var1.append(cor_mat.columns[i]); var2.append(cor_mat.index[j])
+    
+    high_cor_var = list(zip(var1,var2))
+    
+    if is_cor_mat_return :
+        correl_dict = {'correl_matrix':cor_mat, 'Correl_vars' : high_cor_var}
+        return correl_dict
+    else :
+        return correl_dict
