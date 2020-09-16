@@ -124,7 +124,7 @@ def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
         cutoff : cutoff to choose correl level
         is_cor_mat_return : True if correlation matrix to be return
     """
-    cor_mat = ds.corr()
+    cor_mat = ds.corr() # correl matrix
     
     var1 = []; var2 = []
     for i in range(len(cor_mat.columns)):
@@ -132,10 +132,20 @@ def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
             if (cor_mat.iloc[i,j] > cutoff) & (i>j):
                 var1.append(cor_mat.columns[i]); var2.append(cor_mat.index[j])
     
-    high_cor_var = list(zip(var1,var2))
+    high_cor_var = list(zip(var1,var2)) # correls vars list
+    
+    # Getting VIF's
+    inv_corr_mat = np.linalg.inv(corr_mat)
+    vif = pd.DataFrame(np.diag(inv_corr_mat), index=df.columns).reset_index().rename(columns={'index':'Parameter',0:'VIF'}).sort_values(by = ['VIF'],ascending=False, ignore_index=True)
+    
+    # Other way by using statsmodels package : added intercept using add_constant as statmodels doesn't include it by default
+#     from statsmodels.stats.outliers_influence import variance_inflation_factor
+#     from statsmodels.tools.tools import add_constant
+#     vif = pd.DataFrame([variance_inflation_factor(add_constant(ds).values, i) for i in range(add_constant(ds).shape[1])], \
+#                          index=add_constant(ds).columns, columns=['VIF']).reset_index().rename(columns={'index':'Parameter'}).drop(index=0).sort_values(by = ['VIF'],ascending=False, ignore_index=True)
     
     if is_cor_mat_return :
-        correl_dict = {'correl_matrix':cor_mat, 'Correl_vars' : high_cor_var}
+        correl_dict = {'correl_matrix':cor_mat, 'Correl_vars' : high_cor_var, 'vif':vif}
         return correl_dict
     else :
         return correl_dict
