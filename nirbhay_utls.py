@@ -148,4 +148,5 @@ def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
         correl_dict = {'correl_matrix':cor_mat, 'Correl_vars' : high_cor_var, 'vif':vif}
         return correl_dict
     else :
+        correl_dict = {'Correl_vars' : high_cor_var, 'vif':vif}
         return correl_dict
