@@ -537,6 +537,31 @@ ordinal= lambda n: "%d%s" % (n,"tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10
 
 
 # -----------------------------------------------------------------------------------------------------------------
-# Function 15: 
+# Function 15: Outlier tagging based on the std dev
 # -----------------------------------------------------------------------------------------------------------------
 
+def rem_xsd_more(data_col,th=3):
+    # Function to tag observation as outlier based on predefined threshold in terms of standard deviations
+    # args: 
+        # data_col: data columns
+        # th: standard deviation as threshold
+    # returns: True if outlier , False if non-outlier 
+    mean = data_col.mean()
+    std = data_col.std()
+    return((data_col-mean)/std>th)
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 16: Outlier tagging based on the quantile
+# -----------------------------------------------------------------------------------------------------------------
+def rem_xpctl_more(data_col,pctl_th=0.99):
+    # Function to tag observation as outlier based on predefined threshold in terms of quantile
+    # args: 
+        # data_col: data columns
+        # th: percentile as threshold
+    # returns: True if outlier , False if non-outlier 
+    pctl = data_col.quantile(pctl_th)
+    return data_col>pctl
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 17: 
+# -----------------------------------------------------------------------------------------------------------------
