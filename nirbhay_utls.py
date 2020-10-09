@@ -150,3 +150,18 @@ def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
     else :
         correl_dict = {'Correl_vars' : high_cor_var, 'vif':vif}
         return correl_dict
+   
+
+from functools import reduce
+def reduce_join(df, columns,sep='_'):
+    """
+    Concat multiple string columns
+    param:
+        df : dataframe
+        columns : list of col names
+        sep : seperator
+        
+    """
+    assert len(columns) > 1
+    slist = [df[x].astype(str) for x in columns]
+    return reduce(lambda x, y: x + sep + y, slist[1:], slist[0])
