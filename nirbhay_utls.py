@@ -583,9 +583,16 @@ def f_test(x, y):
 # f_test(df['var1'],df['var2'])
 
 # -----------------------------------------------------------------------------------------------------------------
-# Function 18:
+# Function 18: variance threshold selector
 # -----------------------------------------------------------------------------------------------------------------
+from sklearn.feature_selection import VarianceThreshold
+def variance_threshold_selector(data, threshold=0.5):
+    selector = VarianceThreshold(threshold)
+    selector.fit(data)
+    return data[data.columns[selector.get_support(indices=True)]]
 
-
+# -----------------------------------------------------------------------------------------------------------------
+# Function 19:
+# -----------------------------------------------------------------------------------------------------------------
 
 
