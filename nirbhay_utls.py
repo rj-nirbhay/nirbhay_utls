@@ -594,30 +594,37 @@ def variance_threshold_selector(data, threshold=0.5):
 # -----------------------------------------------------------------------------------------------------------------
 # Function 19: Decile wise Event rate and population plot for logistic regression
 # -----------------------------------------------------------------------------------------------------------------
-def decile_event_rate_plot(ds,Population = 'Population_%',Event_rate ='Event_rate',decile ='Band',sample_type ='Development'):
+def logit_model_plots(ds,Population = 'Population_%',Event_rate ='Event_rate',decile ='Band',Cumulative_Non_Event = 'Cumulative_Non_Event_%',Cumulative_Event= 'Cumulative_Event_%',sample_type ='Development'):
     """
     function that plot band wise event rate and population
     args:
         ds : dataset with population, band, event_rate
         Population : str, feature name for population
         Event_rate : str, feature name for Event_rate
+        Cumulative_Non_Event : str, feature name for Cumulative_Non_Event
+        Cumulative_Event : str, feature name for Cumulative_Event
         decile : str, feature name for decile/bands
         sample_type : str, feature name for sample_type , used in title of the plot
         
-    returns: plot
+    returns: plots
     """
-    import matplotlib.pyplot as plt
     
-    fig, ax1 = plt.subplots(figsize=(8, 4))
-    ds[Population].plot(kind='bar', color='b', width = 0.35,legend=True , label = Population)
-    ds[Event_rate].plot(kind='line',color ='r', secondary_y=True,legend=True, label = Event_rate)
-    ax1.set_xticklabels(ds[decile])
-    ax1.set_ylim(0,ds[Event_rate].max()*0.15)
-    ax1.right_ax.set_ylim(0,ds[Event_rate].max()*1.5)
-    ax1.right_ax.set_ylabel(Event_rate)
-    ax1.set_ylabel(Population)
-    plt.title('Decile Wise Event Rate :' +str(sample_type) +' sample')
-    ax1.set_xlabel(decile)
+    import matplotlib.pyplot as plt
+    fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(15, 4))
+    _= ax1.plot(plot_df[Cumulative_Non_Event],plot_df[Cumulative_Event])
+    _= ax1.set_ylabel(Cumulative_Non_Event)
+    _= ax1.set_title('Gini Curve : '+str(sample_type) +' sample')
+    _= ax1.set_xlabel(Cumulative_Event)
+
+    _= plot_df[Population].plot(kind='bar', color='b', width = 0.35,legend=True , label = Population)
+    _= plot_df[Event_rate].plot(kind='line',color ='r', secondary_y=True,legend=True, label = Event_rate)
+    _= ax2.set_xticklabels(plot_df[decile])
+    _= ax2.set_ylim(0,plot_df[Event_rate].max()*0.15)
+    _= ax2.right_ax.set_ylim(0,plot_df[Event_rate].max()*1.5)
+    _= ax2.right_ax.set_ylabel(Event_rate)
+    _= ax2.set_ylabel(Population)
+    _= ax2.set_title('Decile Wise Event Rate : ' +str(sample_type) +' sample')
+    _= ax2.set_xlabel(decile)
     plt.show()
 
 # -----------------------------------------------------------------------------------------------------------------
