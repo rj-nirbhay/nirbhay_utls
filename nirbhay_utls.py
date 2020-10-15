@@ -151,7 +151,7 @@ def correl_vars(ds,cutoff=0.65, is_cor_mat_return=True):
     var1 = []; var2 = []
     for i in range(len(cor_mat.columns)):
         for j in range(len(cor_mat.index)):
-            if (cor_mat.iloc[i,j] > cutoff) & (i>j):
+            if (abs(cor_mat.iloc[i,j]) > cutoff) & (i>j):
                 var1.append(cor_mat.columns[i]); var2.append(cor_mat.index[j])
     
     high_cor_var = list(zip(var1,var2)) # correls vars list
