@@ -628,5 +628,155 @@ def logit_model_plots(ds,Population = 'Population_%',Event_rate ='Event_rate',de
     plt.show()
 
 # -----------------------------------------------------------------------------------------------------------------
-# Function 20:
+# Function 20: Read and write data from google sheet
 # -----------------------------------------------------------------------------------------------------------------
+
+def gsheet_handler(spread_workbook:str, sheet_name:str,path_to_credentials:str('super_user.json'), method='Read',action = 'append_rows',is_add_sheet=False, df=None,row_cutoff=0,col_cutoff=0,keep_headers=False):
+    """
+    Read and write data from/to google sheet
+    
+    Parameters
+    ----------
+    df : pandas dataframe
+        new dataframe which to be added
+    spread_workbook : str
+        worksheet name
+    sheet_name : str
+        sheet to be updated
+    path_to_credentials : str
+        credentail json file path.
+    is_add_sheet : bool, optional
+        DESCRIPTION. if sheet to addded.The default is False.
+    method : str
+        'Read' : read data
+        'write': write data to google sheet
+    action : str
+        'refresh_sheet' : write post clearing the eisting data
+        'append_rows' : append rows to existing data 
+        'append_columns': add columns to existing data
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    scopes = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive',
+              'https://www.googleapis.com/auth/spreadsheets']
+    
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(path_to_credentials, scopes=scopes)
+    gsc = gspread.authorize(credentials)
+    ws = gsc.open(spread_workbook)
+    
+    if is_add_sheet ==False:
+        
+        # Get existing sheet data
+        wb = ws.worksheet(sheet_name)
+        wb_df = wb.get_all_records()
+        wb_df = pd.DataFrame.from_dict(wb_df)
+        
+        if wb_df is not None:
+            n_row = wb_df.shape[0] 
+            n_col = wb_df.shape[1]
+    
+    if method == 'Read':
+        
+        return wb_df
+    
+    elif (method =='write') & (is_add_sheet):
+        wb = ws.add_worksheet(rows=10000,cols=100,title=sheet_name)
+        gd.set_with_dataframe(wb,df,include_column_header= keep_headers)
+    
+    elif (method =='write') & (action == 'refresh_sheet'):
+        wb.clear()
+        gd.set_with_dataframe(wb,df,row=1+row_cutoff,include_column_header=keep_headers) 
+        
+    elif (method =='write') & (action == 'append_rows'):
+        gd.set_with_dataframe(wb,df,row=n_row+1+row_cutoff,include_column_header=keep_headers) 
+        
+    elif (method =='write') & (action == 'append_columns'):
+        gd.set_with_dataframe(wb,df,col=n_col+1+col_cutoff,include_column_header=keep_headers) 
+    
+    else:
+        print("None action are performed")
+        
+    return wb
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 21: Duplicated records based on column
+# -----------------------------------------------------------------------------------------------------------------
+
+def Get_dup_records(ds,key_var='leadNumber'):
+    """
+    This function returns duplicate records
+    args:
+        ds : dataframe
+        key_var : str, Variable name based on which duplcation present
+    """
+    temp = ds.groupby([key_var]).agg({key_var:'count'}).rename(columns={key_var:'Freq'}).reset_index()
+    temp = temp[temp['Freq']>1]
+    print("Total Duplicate records:: " +str(temp.shape[0]))
+
+    return temp
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 22: Find all numberic number in string
+# -----------------------------------------------------------------------------------------------------------------
+import re
+def find_number(text):
+    num = re.findall(r'[0-9]+',text)
+    return " ".join(num)
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 23: Multiple sheet output in excel
+# -----------------------------------------------------------------------------------------------------------------
+
+def dfs_tabs(df_list, sheet_list, file_name):
+    """
+    This function export data to multiple sheets of excel
+    param:
+        df_list : list of dataframes
+        sheet_list : list of sheet name where data to exported
+        file_name : Export file name 
+        
+    E.g :
+        # list of dataframes and sheet names
+        #dfs = [Req_tracker_asofdate, Req_tracker_agg]
+        #sheets = ['Flow_Trends','Flow_Aggregate_Data']    
+        #dfs_tabs(dfs, sheets, f"test.xlsx")
+    
+    """
+
+    writer = pd.ExcelWriter(file_name,engine='xlsxwriter')   
+    for dataframe, sheet in zip(df_list, sheet_list):
+        dataframe.to_excel(writer, sheet_name=sheet, startrow=0 , startcol=0, index=False)   
+    writer.save()
+   
+# -----------------------------------------------------------------------------------------------------------------
+# Function 24: column names to proper format
+# -----------------------------------------------------------------------------------------------------------------
+
+def standardize_col_names(ds):
+    """
+    
+    """
+    ds.columns = ds.columns.str.lower()
+    ds.columns = [re.sub(r"[^\w\s]", '_', col) for col in ds.columns ]
+    ds.columns = ds.columns.str.replace('^ +| +$', '_')
+    ds.columns = ds.columns.str.replace('__', '_')
+
+    return ds
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 25: 
+# -----------------------------------------------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 26: 
+# -----------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------
+# Function 27: 
+# -----------------------------------------------------------------------------------------------------------------
+    
