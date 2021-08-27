@@ -768,9 +768,58 @@ def standardize_col_names(ds):
     return ds
 
 # -----------------------------------------------------------------------------------------------------------------
-# Function 25: 
+# Function 25: Bayesian Optimization for random forest
 # -----------------------------------------------------------------------------------------------------------------
+def bayesian_optimization(dataset, function, parameters):
+    X_train, y_train, X_test, y_test = dataset
+    n_iterations = 5
+    gp_params = {"alpha": 1e-4}
 
+    BO = BayesianOptimization(function, parameters)
+    BO.maximize(n_iter=n_iterations, **gp_params)
+
+    return BO.max
+
+def rfc_optimization(cv_splits):
+    def function(n_estimators, max_depth, min_samples_split):
+        return cross_val_score(
+               RandomForestClassifier(
+                   n_estimators=int(max(n_estimators,0)),                                                               
+                   max_depth=int(max(max_depth,1)),
+                   min_samples_split=int(max(min_samples_split,2)), 
+                   n_jobs=-1, 
+                   random_state=42,   
+                   class_weight="balanced"),  
+               X=X_train, 
+               y=y_train, 
+               cv=cv_splits,
+               scoring="roc_auc",
+               n_jobs=-1).mean()
+
+    parameters = {"n_estimators": (200, 300),
+                  "max_depth": (8, 20),
+                  "min_samples_split": (2, 10)}
+    
+    return function, parameters
+
+def train(X_train, y_train, X_test, y_test, function, parameters):
+    dataset = (X_train, y_train, X_test, y_test)
+    cv_splits = 4
+    
+    best_solution = bayesian_optimization(dataset, function, parameters)      
+    params = best_solution["params"]
+
+    model = RandomForestClassifier(
+             n_estimators=int(max(params["n_estimators"], 0)),
+             max_depth=int(max(params["max_depth"], 1)),
+             min_samples_split=int(max(params["min_samples_split"], 2)), 
+             n_jobs=-1, 
+             random_state=42,   
+             class_weight="balanced")
+
+    model.fit(X_train, y_train)
+    
+    return model
 
 # -----------------------------------------------------------------------------------------------------------------
 # Function 26: 
