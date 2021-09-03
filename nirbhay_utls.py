@@ -706,7 +706,7 @@ def gsheet_handler(spread_workbook:str, sheet_name:str,path_to_credentials:str('
 # Function 21: Duplicated records based on column
 # -----------------------------------------------------------------------------------------------------------------
 
-def Get_dup_records(ds,key_var='leadNumber'):
+def Get_dup_records(ds,key_var):
     """
     This function returns duplicate records
     args:
